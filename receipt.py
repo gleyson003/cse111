@@ -2,13 +2,12 @@ import csv
 from datetime import datetime
 
 def main():
-
-    current_date_and_time = datetime.now()
-    product_dict = read_dictionary("products.csv", 0)
-
-    print('\nInkom Emporium\n')
-
     try:
+        current_date_and_time = datetime.now()
+        product_dict = read_dictionary("products.csv", 0)
+
+        print('\nInkom Emporium\n')
+
         with open("request.csv", "rt") as file:
             reader = csv.reader(file)
             next(reader)
@@ -16,6 +15,7 @@ def main():
             number_of_items = 0
             subtotal = 0
             tax = 0.06
+            discount_amount = 0
 
             for row in reader:
                 PRODUCT_CODE = row[0]
@@ -34,9 +34,9 @@ def main():
                 except KeyError as err_key:
                     error_message = f"Error: unknown product ID in the request.csv file\n{err_key}"
                     print(error_message)
+                    raise KeyError(error_message)
 
             sales_tax = subtotal * tax
-            discount_amount = 0
 
             if current_date_and_time.weekday() in [1, 2]:
                 discount = 0.10
@@ -54,14 +54,16 @@ def main():
                 f'Total: {total:.2f}\n'
             )
 
+            formatted_date_and_time = current_date_and_time.strftime('%a %b %d %H:%M:%S %Y')
             print(
                 f"Thank you for shopping at the Inkom Emporium.\n"
-                f"{current_date_and_time:%a %b %d %H:%M:%S %Y}"
+                f"{formatted_date_and_time}"
             )
 
     except FileNotFoundError as not_found_err:
         print('Error: missing file')
         print(not_found_err)
+        raise FileNotFoundError(f"Error: File not found: {not_found_err}")
 
 def read_dictionary(filename, key_column_index):
     dictionary = {}
